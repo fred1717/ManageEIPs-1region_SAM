@@ -1,0 +1,23 @@
+# Secrets / keys
+*.pem
+*.key
+*.p12
+*.pfx
+.env
+.env.*
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# Build / artifacts
+*.zip
+
+# Local outputs / scratch
+response*.json
+event.json
+
+# OS junk
+.DS_Store
+Thumbs.db
