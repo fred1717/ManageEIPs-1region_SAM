@@ -2955,8 +2955,8 @@ git push origin v1.0.0
 ```
 
 **Create GitHub Release (UI)**
-- repo `ManageEIPs-1region` > Releases > Create a new release > Select tag: `v0.1.0` > tick "Set as a pre-release"
-- Release title: `v0.1.0` > Publish release
+- repo `ManageEIPs-1region` > Releases > Create a new release > Select tag: `v1.0.0` > don't tick "Set as a pre-release"
+- Release title: `v1.0.0` > Publish release
 
 **Verify**
 - Repo > Releases
