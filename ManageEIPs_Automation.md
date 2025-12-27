@@ -2742,7 +2742,13 @@ git status
         tag_helpers.jq
 ```
 
-#### 13.2.4 Create `gitignore`to avoid committing certain files
+#### 13.2.4 Configure `Git author identity` (mandatory for first commit)
+```bash
+git config --global user.name "Malik Hamdane"
+git config --global user.email "mfhamdane@hotmail.com"
+```
+
+#### 13.2.5 Create `gitignore`to avoid committing certain files
 ```bash
 cat > .gitignore <<'EOF'
 # Secrets / keys
@@ -2771,54 +2777,81 @@ Thumbs.db
 EOF
 ```
 
-#### 13.2.5 Stage what should be published and create the first commit
+#### 13.2.6 Stage what should be published and create the first commit
 ```bash
 git add .gitignore README.md ManageEIPs_Automation.md lambda_function.py manage-eips-policy.json manage-eips-trust.json *.jq
 git commit -m "chore: initialize repo with docs, lambda, and jq helpers"
 git status
 ```
 
-**Fix "Author identity unknown" (Git cannot commit)
-```bash
-git config --global user.name "Malik Hamdane"
-git config --global user.email "mfhamdane@hotmail.com"
-```
-
-#### 13.2.6 Verify status/log (`git status` / `git log`...)
+#### 13.2.7 Verify status/log (`git status` / `git log`...)
 ```bash
 git status
 git log --oneline -n 5
 ```
 
 
-### 13.3 `.gitignore` (mandatory)
-- Ignore secrets and local artifacts (AWS creds, .env, .zip build outputs if applicable, OS files)
-- Ignore IDE folders (.vs/, .vscode/ if you want, etc.)
-
-
-### 13.4 File set to publish
+### 13.3 File set to publish
 - Required files: `README.md`, `ManageEIPs_Automation.md`, Lambda code, templates, helper `jq` filters
 - Excluded files: credentials, any private notes, large binaries
 
 
-### 13.5 Commit standards (“portfolio discipline”)
+### 13.4 Commit standards (“portfolio discipline”)
 - Small commits, one concern per commit
 - Commit messages format you prefer
 - “No hardcoded IDs / CLI + `jq -c` outputs / consistent tags” as review checklist
 
 
-### 13.6 Remote creation and first push
-- Create GitHub repo (UI)
-- Add remote
-- First push
+### 13.5 Remote creation and first push
+#### 13.5.1 Create GitHub repo (UI)
+- Go to GitHub and sign in.
+- click on + > New Repository > add Description > Visibility = public (portfolio)
+- Leave 'Add README', 'Add .gitignore' and 'Add License' unchecked > click on CREATE REPOSITORY
+- Click on 'Code' tab > click on HTTPS (grey when active)
+- Copy URL ending with git: https://github.com/fred1717/ManageEIPs-1region.git
+
+```bash
+git remote add origin https://github.com/fred1717/ManageEIPs-1region.git
+git remote -v
+```
+
+**Expected output:**
+```text
+origin  https://github.com/fred1717/ManageEIPs-1region.git (fetch)
+origin  https://github.com/fred1717/ManageEIPs-1region.git (push)
+```
+
+#### 13.5.2 First push
+**Create a GitHub Personal Access Token (PAT) for git push (HTTPS):**
+- Open token settings (UI)
+  - Profile picture > Settings > Scroll down and click 'Developer settings' > Click Personal access tokens > 
+  - Click Token (classic) > Click 'Generate new token (classic)
+
+- Configure the token
+  - Note: ManageEIPs-1region
+  - Expiration: choose one (recommended: 30 or 90 days; or your preference)
+  - Select scopes: tick repo (this covers push to repositories)
+
+- Generate and copy
+  - Scroll down and click Generate token.
+  - Copy the token immediately (will be invisible afterwards).
+
+- Use it for the push
+```bash
+git push -u origin main
+```
+
+- When prompted:
+  Username for 'https://github.com': fred1717
+  Password for 'https://fred1717@github.com': paste the PAT I just copied
 
 
-### 13.7 Release/Versioning (optional)
+### 13.6 Release/Versioning (optional)
 - Tagging a stable version (v1.0)
 - Changelog note (optional)
 
 
-### 13.8 Post-publish verification
+### 13.7 Post-publish verification
 - Repo renders README properly
 - Markdown links work
 - No secrets committed (final sanity check)
