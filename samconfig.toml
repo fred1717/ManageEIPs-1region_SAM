@@ -1,0 +1,13 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "ManageEIPs-1region-SAM"
+resolve_s3 = true
+s3_prefix = "ManageEIPs-1region-SAM"
+confirm_changeset = true
+capabilities = "CAPABILITY_NAMED_IAM"
+parameter_overrides = "ProjectTag=\"ManageEIPs\" EnvironmentTag=\"dev\" OwnerTag=\"Malik\" ManagedByTag=\"SAM\" CostCenterTag=\"Portfolio\" ScheduleExpressionMonthly=\"cron(0 21 30 * ? *)\""
+image_repositories = []
+
+[default.global.parameters]
+region = "us-east-1"
