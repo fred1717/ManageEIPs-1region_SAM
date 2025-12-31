@@ -2781,6 +2781,38 @@ git status
 git status
 git log --oneline -n 5
 ```
+**Example output:**
+```text
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   ManageEIPs_Automation-SAM.md
+        deleted:    ManageEIPs_Automation.md
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        .aws-sam/
+        function/
+        sam_build_debug.log
+        samconfig.toml
+        src/
+        template.yaml
+```
+I want to add `template.yaml` and `src/`. Let's also check if it is safe to add `samconfig.toml`
+
+**Check contents of `samconfig.toml`**
+```bash
+sed -n '1,200p' samconfig.toml
+```
+As there is nothing secret in it, the file will be added.
+
+**Add SAM templates and 2 other files**
+```bash
+git add template.yaml src/ samconfig.toml
+```
 
 
 ### 4.3 File set to publish
@@ -2896,7 +2928,7 @@ git add ManageEIPs_Automation-SAM.md
 
 **Commit**
 ```bash
-git commit -m "docs: update ManageEIPs_Automation-SAM"        # 1 file changed, 55 insertions(+), 22 deletions(-)
+git commit -m "sam: add template, source directory, and samconfig.toml"
 ```
 
 **Push**
@@ -2910,8 +2942,22 @@ git status
 git log --oneline -n 5
 ```
 **Expected output: `local branch` and `GitHub` are now synchronised**
-eaf773f (HEAD -> main, origin/main) docs: update `ManageEIPs_Automation-SAM`
-515a7a5 chore: initialize repository with docs, `lambda`, and `jq helpers`
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   `.gitignore`
+        modified:   `ManageEIPs_Automation-SAM.md`
+        deleted:    ManageEIPs_Automation.md
+no changes added to commit (use "git add" and/or "git commit -a")
+
+**Commit `.gitignore` and `ManageEIPs_Automation-SAM.md`**
+```bash
+git diff
+git add .gitignore ManageEIPs_Automation-SAM.md
+git rm ManageEIPs_Automation.md
+git commit -m "docs: update runbook and clean legacy filename; ignore SAM build artifacts"
+git push
+```
 
 #### 4.6.2  Verify files on `GitHub` (UI)
 - `GitHub` > Your repository > Click `ManageEIPs-1region_SAM` > Refresh page > check latest `commit` + list of present files 
@@ -2926,7 +2972,7 @@ git ls-files | grep -Ei "(\.pem|\.key|\.p12|\.pfx|\.env|tfstate|credentials|secr
 **Expected output:**
 No output. That’s the desired outcome: it means none of the tracked files match those risky patterns.
 
-**Checking file contents on the repositorysitory**
+**Checking file contents on the repository**
 ```bash
 git grep -nE "(AKIA|ASIA|aws_secret_access_key|aws_access_key_id|BEGIN RSA PRIVATE KEY)" || true
 ```
@@ -2967,18 +3013,19 @@ git push origin v0.0.1
 ```
 
 **In `GitHub`**
-- repository `ManageEIPs-1region_SAM` > Releases > Create a new release > Select tag: `v0.0.1` > tick "Set as a pre-release"
-- Release title: `v0.0.1` (WIP) > Publish release
+- repository `ManageEIPs-1region_SAM` > Releases > Create a new release > Select tag: `v0.0.1` > 
+  Title: v0.0.1 — Initial WIP pre-release (SAM deployment + baseline runbook) > tick "Set as a pre-release"
+- Publish release
 
 **Create pre-release tag `v0.0.2` (later WIP milestone)**
 ```bash
-git tag -a v0.0.2 -m "WIP: docs milestone (advanced capabilities + EventBridge wiring)"
+git tag -a v0.0.2 -m "Cleaned up formatting in the 2 markdown documents"
 git push origin v0.0.2
 ```
 
 **In `GitHub`**
 - repository `ManageEIPs-1region_SAM` > Releases > Create a new release > Select tag: `v0.0.2` > tick "Set as a pre-release"
-- Release title: `v0.0.2` (WIP) > Publish release
+- Release title: `v0.0.2` (WIP - formatting cleaned up) > Publish release
 
 
 #### 4.7.3 Final release when documentation is complete (`v1.0.0`)
@@ -2996,6 +3043,7 @@ git push origin v1.0.0
 **Create `GitHub` Release (UI)**
 - repository `ManageEIPs-1region_SAM` > Releases > Create a new release > Select tag: `v1.0.0` > don't tick "Set as a pre-release"
 - Release title: `v1.0.0` > Publish release
+This final release is actually the same as v0.0.2 with exception of this line.
 
 **Verify**
 - repository > Releases
