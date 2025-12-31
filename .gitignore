@@ -11,8 +11,11 @@
 .vscode/
 .idea/
 
-# Build / artifacts
+# SAM Build / artifacts
 *.zip
+.aws-sam/
+function/
+sam_build_debug.log
 
 # Local outputs / scratch
 response*.json

@@ -2724,17 +2724,14 @@ git status
 ```
 **Expected output:**
 ```text
-    .vs/
-    ManageEIPs_Automation-SAM.md
-    README.md
-    event.json
-    flatten_tags.jq
-    function.zip
-    manage-eips-policy.json
-    manage-eips-trust.json
-    response.json
-    rules_names.jq
-    tag_helpers.jq
+  .vs/
+  .aws-sam/
+  ManageEIPs_Automation-SAM.md
+  function/
+  sam_build_debug.log
+  samconfig.toml
+  src/
+  template.yaml
 ```
 
 #### 4.2.4 Configure `Git author identity` (mandatory for first `commit`)
@@ -2774,7 +2771,7 @@ EOF
 
 #### 4.2.6 Stage what should be published and create the first `commit`
 ```bash
-git add .gitignore README.md ManageEIPs_Automation.md lambda_function.py manage-eips-policy.json manage-eips-trust.json *.jq
+git add .gitignore README.md ManageEIPs_Automation-SAM.md lambda_function.py manage-eips-policy.json manage-eips-trust.json *.jq
 git commit -m "chore: initialize repository with docs, lambda, and jq helpers"
 git status
 ```
@@ -2810,11 +2807,45 @@ git remote add origin https://github.com/fred1717/ManageEIPs-1region_SAM.git
 git remote -v
 ```
 
-**Expected output:**
+**Example output:**
+```text
+error: remote origin already exists.
+origin  https://github.com/fred1717/ManageEIPs-1region.git (fetch)
+origin  https://github.com/fred1717/ManageEIPs-1region.git (push)
+```
+Our local repository already has a `remote named origin` saved in `.git/config` (pointing to `ManageEIPs-1region.git` instead of `ManageEIPs-1region_SAM.git`), so Git refuses to add another origin and keeps the existing one.
+
+**Find the exact location of the Git directory**
+```bash
+git rev-parse --show-toplevel
+git rev-parse --git-dir
+```
+**Example output**
+```text
+/mnt/c/Users/mfham/Documents/CloudDev/Python/Lambda/ManageEIPs-1region_SAM
+.git
+```
+
+**Check whether `.git` exists but is hidden**
+```bash
+ls -la
+```
+**Example output**
+```text
+drwxrwxrwx 1 mfh mfh 512 Dec 31 21:09 .git
+```
+
+**Fix the wrong remote**
+```bash
+git remote set-url origin https://github.com/fred1717/ManageEIPs-1region_SAM.git
+git remote -v
+```
+**Example output**
 ```text
 origin  https://github.com/fred1717/ManageEIPs-1region_SAM.git (fetch)
 origin  https://github.com/fred1717/ManageEIPs-1region_SAM.git (push)
 ```
+
 
 #### 4.5.2 First `push`
 **Create a `GitHub Personal Access Token` (`PAT`) for `git push` (HTTPS):**
