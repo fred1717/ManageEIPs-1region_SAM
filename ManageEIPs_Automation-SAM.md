@@ -3039,6 +3039,39 @@ git status
 git tag -a v1.0.0 -m "v1.0.0 first portfolio release"
 git push origin v1.0.0
 ```
+fatal: tag 'v1.0.0' already exists
+
+**Check existing version tags**
+```bash
+git tag --list | grep -E '^v'
+```
+**Example output**
+```text
+v0.0.1
+v0.0.2
+v0.1.0
+v1.0.0
+```
+
+**Remove v1.0.0 and v0.1.0**
+```bash
+git tag -d v1.0.0 v0.1.0
+```
+**Check existing version tags**
+```bash
+git tag --list | grep -E '^v'
+```
+**Example output**
+```text
+v0.0.1
+v0.0.2
+```
+
+**New attempt at creating final tag v1.0.0**
+```bash
+git tag -a v1.0.0 -m "v1.0.0 first portfolio release"
+git push origin v1.0.0
+```
 
 **Create `GitHub` Release (UI)**
 - repository `ManageEIPs-1region_SAM` > Releases > Create a new release > Select tag: `v1.0.0` > don't tick "Set as a pre-release"

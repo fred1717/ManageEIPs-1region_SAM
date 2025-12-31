@@ -48,7 +48,7 @@ End-to-end AWS automation lab that is fully reproducible, teardown-first, CLI-au
 6. Verify behavior end-to-end (runbook section **1.6**):
    - `Stack outputs` (JSONL).
    - `Lambda alias` + `IAM role/policies` (JSONL).
-   - Optional `EventBridge rule` + `targets` + `schedule expression` (JSONL).
+   - `EventBridge rule` + `targets` + `schedule expression` (JSONL).
    - `EIP before/after state` and `CloudWatch log evidence` (JSONL).
 
 ## Safety / cost notes
