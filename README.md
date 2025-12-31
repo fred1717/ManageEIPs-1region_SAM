@@ -1,87 +1,64 @@
-# ManageEIPs — Automated Cleanup of Unassociated Elastic IPs (EIPs)
+# ManageEIPs Automation (AWS CLI + jq + SAM) — Strict JSONL Discipline
 
-## Problem
-Unassociated Elastic IPs incur hourly AWS charges and are easy to forget.
+End-to-end AWS automation lab that is fully reproducible, teardown-first, CLI-auditable (JSONL), and `SAM-template` driven for serverless deployment (`Lambda` + `IAM` + optional `EventBridge schedule`).
 
-## Solution
-This project deploys an **AWS Lambda** function that periodically scans Elastic IPs in a Region and releases **only** those that are:
-- **unassociated** (not attached to an instance/network interface), and
-- **in-scope** via tags (**ManagedBy=ManageEIPs**), and
-- **not protected** (**Protection≠DoNotRelease**).
+## What this repository demonstrates
+- CLI-built disposable test harness (`VPC` + `EC2` + `EIPs`) used only to generate test conditions (1 attached `EIP`, 2 unassociated `EIPs`).
+- `SAM-deployed` automation layer (`CloudFormation-managed`):
+  - `Lambda` function that detects and releases `unassociated Elastic IPs`.
+  - `IAM role` and `permissions` declared in `template.yaml`.
+  - Optional `EventBridge schedule` declared in `template.yaml`.
+- Operational safeguards and production-like hygiene:
+  - `Dry-run` safety mode.
+  - Structured `CloudWatch Logs` (JSON).
+  - `Custom CloudWatch metrics` for `EIP` scanning/release outcomes.
+  - `Multi-Region deployment pattern` (same `SAM` app deployed per Region).
 
-Scheduling is handled by **Amazon EventBridge** (cron rule).
-
-## Safety model (Dry-Run first)
-The Lambda supports a **Dry-Run / safety mode** where it evaluates and logs actions but makes **no changes**.
-
-Recommended workflow:
-1) Deploy → run Dry-Run → review logs/metrics  
-2) Enable real execution (`dry_run=false`) only after validation
-
-## Architecture (single Region)
-- **EventBridge rule** (scheduled) → invokes Lambda
-- **Lambda** lists EIPs in the Region
-- Applies **tag-based scope + protection checks**
-- Releases qualifying unused EIPs
-- Emits **structured CloudWatch logs (JSON)** and optional metrics (FinOps angle)
-
-## Scheduling (recommended)
-For normal operation and cost control, a **monthly** schedule is sufficient (e.g. **02:00 UTC on the 25th**).
-
-During testing, you can temporarily set a near-future cron time, validate behavior, then revert to the monthly schedule.
-
-## Multi-Region (design-ready, optional)
-The solution is **Region-agnostic**:
-- Deploy the same stack independently in Region A / Region B
-- No code changes required
-- Each Region has its own EventBridge schedule and operates only on local EIPs
-- IAM is global and can be reused; operational visibility and costs remain per-Region
-
-## Operational standards enforced in this repo
-This repository intentionally follows strict “portfolio-grade” operational discipline:
-
-- **CLI-first (AWS CLI + jq)**: reproducible commands, minimal console dependency
-- **No hardcoded IDs**: resource IDs are discovered dynamically and stored in variables
-- **Strict JSONL output**: prefer `jq -c` with **one JSON object per line**
-- **Reusable jq helpers**: shared filters to keep output contracts consistent
-- **Consistent tagging on everything** (minimum set):
-  - `Name`, `Project`, `Component`, `Environment`, `Owner`, `ManagedBy`, `CostCenter`
-- **AWS resource name ≠ Name tag** where applicable
-- **Tag-based scope control**:
-  - `ManagedBy=ManageEIPs` → resource is managed by this automation
-  - `Protection=DoNotRelease` → explicitly protected from release
+## Non-negotiable engineering rules (portfolio standards)
+- `CLI-only` (`AWS CLI` + `jq`, plus `SAM CLI` for deploy).
+- `No hardcoded AWS IDs` (`VPC/Subnet/SG/EIP allocation IDs` discovered dynamically).
+- Strict JSON Lines output for all “verify” steps (1 JSON object per line).
+- No nested arrays in output; tags are flattened with 1 JSON object per tag.
+- When AWS returns AWS-created names like `GroupName` or `RuleName`, they must remain different from the resource `Name` tag value (`NameTag`).
 
 ## Repository contents
-**Tracked (published) files**
-- `ManageEIPs_Automation.md` — end-to-end build + verification (includes **Section 13: GitHub**)
-- `lambda_function.py` — Lambda function source
-- `manage-eips-policy.json` — least-privilege IAM policy documents used in the build
-- `manage-eips-trust.json` — IAM trust policy document for the Lambda execution role
-- `*.jq` — reusable jq filters (`flatten_tags.jq`, `tag_helpers.jq`, etc.)
+- `ManageEIPs_Automation-SAM.md`: the authoritative, step-by-step runbook (teardown → rebuild → deploy → verify).
+- `template.yaml`: SAM template defining `Lambda/IAM/optional schedule/observability` resources.
+- `lambda_function.py`: `Lambda` source code.
+- `*.jq`: `reusable jq filters` used across verification commands (e.g., `flatten_tags.jq`, `tag_helpers.jq`, `rules_names.jq`).
+- `manage-eips-policy.json`, `manage-eips-trust.json`: `IAM policy/trust` JSON used in the lab workflow (do not commit secrets).
 
-**Not tracked (intentionally excluded via `.gitignore`)**
-- secrets/keys (`*.pem`, `*.key`, `.env*`, etc.)
-- build artifacts (`*.zip`)
-- local scratch outputs (`response*.json`, `event.json`)
-- IDE folders (`.vs/`, `.vscode/`, `.idea/`)
+## Prerequisites
+- `AWS CLI v2`, configured with a profile that can create the resources used in this lab.
+- `jq` installed.
+- `SAM CLI` installed (recommended: `pipx install aws-sam-cli`).
+- A working shell environment (`WSL/Ubuntu` is used in the runbook).
 
-## Publishing to GitHub (summary)
-Full, click-by-click + CLI instructions are in `ManageEIPs_Automation.md` (**Section 13**), including:
-- local repo initialization, `.gitignore`, and first commit
-- GitHub repo creation + HTTPS remote
-- PAT-based authentication for `git push` (GitHub no longer accepts account passwords for HTTPS git operations)
-- post-push verification and “no-secrets” sanity checks (`git ls-files` / `git grep` patterns)
+## Quick start (high level)
+1. Read and follow `ManageEIPs_Automation-SAM.md` from section **0** onward (it sets the global conventions and variables).
+2. Export the required environment variables (examples used in the runbook):
+   - `AWS_PROFILE`, `AWS_REGION`, `SAM_STACK_NAME`.
+   - Tag defaults: `TAG_PROJECT`, `TAG_ENV`, `TAG_OWNER`, `TAG_MANAGEDBY`, `TAG_COSTCENTER`.
+3. Create the `reusable jq filters` once (see the runbook section **0.7 Reusable jq filters**).
+4. Validate/build/deploy the `SAM stack` (see runbook section **1.4** and **1.5**):
+   - `sam validate`
+   - `sam build`
+   - `sam deploy --guided --stack-name "$SAM_STACK_NAME" --region "$AWS_REGION" --capabilities CAPABILITY_NAMED_IAM --s3-bucket "$SAM_ARTIFACTS_BUCKET"`
+5. Run the disposable `network/EC2/EIP` harness to create test conditions (runbook section **2**).
+6. Verify behavior end-to-end (runbook section **1.6**):
+   - `Stack outputs` (JSONL).
+   - `Lambda alias` + `IAM role/policies` (JSONL).
+   - Optional `EventBridge rule` + `targets` + `schedule expression` (JSONL).
+   - `EIP before/after state` and `CloudWatch log evidence` (JSONL).
 
-## Release / versioning
-The documentation is actively being refined. Until it is final:
-- consider an annotated **pre-release tag** such as `v0.1.0` and mark it as a **pre-release** on GitHub
-- create the final `v1.0.0` tag only when both `ManageEIPs_Automation.md` and this README are final
+## Safety / cost notes
+- This is a portfolio lab; teardown is part of the design.
+- Prefer deleting the `SAM stack` to tear down the automation layer, and delete the CLI harness resources when done testing.
+- Keep `schedules` disabled until `dry-run` and manual validations are successful (see runbook “Advanced Capabilities” section).
 
-## Documentation
-- Full step-by-step implementation and verification (including strict output conventions and GitHub publishing):  
-  👉 `ManageEIPs_Automation.md`
+## Release/versioning guidance
+- Use pre-release tags for WIP documentation milestones (e.g., `v0.0.1`, `v0.0.2`).
+- Create the first “portfolio” release tag only when the runbook and `README` are final (typically `v1.0.0` or later).
 
-## Status
-✔ Working  
-✔ Tested (manual + scheduled)  
-✔ Safe-by-design via Dry-Run + tag-based scope
+## License
+- Add a license if you want this repository to be reusable by others (MIT is common for portfolio labs).

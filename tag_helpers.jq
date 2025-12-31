@@ -1,4 +1,10 @@
-def _tags($o): ($o.Tags // $o.TagSet // []);
-def tag_value($o; $k): (_tags($o) | first(.[]? | select(.Key==$k) | .Value) // null);
-def tag_name($o): tag_value($o; "Name");
-def must_tag_name($o): (tag_name($o) // "MISSING-NAME-TAG");
+def tv($tags;$k):(($tags//[])|map(select(.Key==$k)|.Value)|.[0]//""); 
+def nz:(if .==null then "" else tostring end); 
+def tagv($k):tv(.Tags;$k); 
+def name_tag: (tagv("Name")|nz); 
+def aws_generated_name: ((tagv("aws:cloudformation:logical-id"))|nz); def group_name: (tagv("GroupName")|nz); 
+def rule_name: (tagv("RuleName")|nz); 
+def project: (tagv("Project")|nz); def environment: (tagv("Environment")|nz); def owner: (tagv("Owner")|nz); 
+def managed_by: (tagv("ManagedBy")|nz); 
+def cost_center: (tagv("CostCenter")|nz); 
+def component: (tagv("Component")|nz);
