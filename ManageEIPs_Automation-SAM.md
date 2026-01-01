@@ -3092,12 +3092,34 @@ git push
 
 ```bash
 git tag -a v1.0.1 -m "v1.0.1 second stable portfolio release (SAM template + Lambda + strict JSON runbook)"
-git push origin v1.0.0
+git push origin v1.0.1
 ```
 
 **Create `GitHub` Release (UI)**
 - repository `ManageEIPs-1region_SAM` > Releases > Create a new release > Select tag: `v1.0.1` > don't tick "Set as a pre-release"
 - Release title: `v1.0.1` > Publish release
+This final release is actually the same as v0.0.2 with exception of this line.
+
+**Verify**
+- repository > Releases
+- Confirm `v1.0.1` points to the intended commit.
+
+**Final attempt at creating final tag `v1.0.2`**
+```bash
+git status
+git add ManageEIPs_Automation-SAM.md
+git commit -m "docs: Amend errors in runbook (last git versioning) and add new git version"
+git push
+```
+
+```bash
+git tag -a v1.0.2 -m "v1.0.2 third stable portfolio release (SAM template + Lambda + strict JSON runbook)"
+git push origin v1.0.2
+```
+
+**Create `GitHub` Release (UI)**
+- repository `ManageEIPs-1region_SAM` > Releases > Create a new release > Select tag: `v1.0.2` > don't tick "Set as a pre-release"
+- Release title: `v1.0.2 - third stable portfolio release (SAM template + Lambda + strict JSON runbook)` > Publish release
 This final release is actually the same as v0.0.2 with exception of this line.
 
 **Verify**
