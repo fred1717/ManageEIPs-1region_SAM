@@ -3124,4 +3124,4 @@ This final release is actually the same as v0.0.2 with exception of this line.
 
 **Verify**
 - repository > Releases
-- Confirm `v1.0.1` points to the intended commit.
+- Confirm `v1.0.2` points to the intended commit.
