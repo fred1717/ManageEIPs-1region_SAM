@@ -2686,8 +2686,8 @@ This validates `blast-radius containment` and prevents cross-Region impact durin
 
 
 
-## 4. `GitHub` (repositorysitory Publishing & Portfolio Standards)
-### 4.1 repositorysitory purpose and scope
+## 4. `GitHub` (repository Publishing & Portfolio Standards)
+### 4.1 repository purpose and scope
 **Purpose:**
 - Publish the `ManageEIPs SAM` project as a clean, reproducible portfolio repositorysitory: `SAM template(s)`, `Lambda code`, and `helper jq filters`, with instructions to deploy and run.
 
@@ -3067,9 +3067,9 @@ v0.0.1
 v0.0.2
 ```
 
-**New attempt at creating final tag v1.0.0**
+**New attempt at creating final tag `v1.0.0`**
 ```bash
-git tag -a v1.0.0 -m "v1.0.0 first portfolio release"
+git tag -a v1.0.0 -m "v1.0.0 first stable portfolio release (SAM template + Lambda + strict JSON runbook)"
 git push origin v1.0.0
 ```
 
@@ -3081,3 +3081,25 @@ This final release is actually the same as v0.0.2 with exception of this line.
 **Verify**
 - repository > Releases
 - Confirm `v1.0.0` points to the intended commit.
+
+**Additional attempt at creating final tag `v1.0.1`**
+```bash
+git status
+git add ManageEIPs_Automation-SAM.md
+git commit -m "docs: Amend spelling errors and add new git version"
+git push
+```
+
+```bash
+git tag -a v1.0.1 -m "v1.0.1 second stable portfolio release (SAM template + Lambda + strict JSON runbook)"
+git push origin v1.0.0
+```
+
+**Create `GitHub` Release (UI)**
+- repository `ManageEIPs-1region_SAM` > Releases > Create a new release > Select tag: `v1.0.1` > don't tick "Set as a pre-release"
+- Release title: `v1.0.1` > Publish release
+This final release is actually the same as v0.0.2 with exception of this line.
+
+**Verify**
+- repository > Releases
+- Confirm `v1.0.1` points to the intended commit.
